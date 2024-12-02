@@ -1,0 +1,187 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+
+// Class to store alumni details
+class Alumni {
+    private String name;
+    private String yearOfGraduation;
+    private String course;
+    private String email;
+
+    // Constructor
+    public Alumni(String name, String yearOfGraduation, String course, String email) {
+        this.name = name;
+        this.yearOfGraduation = yearOfGraduation;
+        this.course = course;
+        this.email = email;
+    }
+
+    // Getter methods
+    public String getName() {
+        return name;
+    }
+
+    public String getYearOfGraduation() {
+        return yearOfGraduation;
+    }
+
+    public String getCourse() {
+        return course;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    // Method to display alumni details as a string
+    public String getDetails() {
+        return "Name: " + name + "\nYear of Graduation: " + yearOfGraduation +
+                "\nCourse: " + course + "\nEmail: " + email + "\n";
+    }
+}
+
+// Main class to manage alumni
+public class AlumniManagementSystemGUI {
+    private ArrayList<Alumni> alumniList;
+
+    public AlumniManagementSystemGUI() {
+        alumniList = new ArrayList<>();
+    }
+
+    // Method to add an alumni
+    public void addAlumni(String name, String yearOfGraduation, String course, String email) {
+        Alumni alumni = new Alumni(name, yearOfGraduation, course, email);
+        alumniList.add(alumni);
+    }
+
+    // Method to display all alumni details
+    public String displayAlumni() {
+        if (alumniList.isEmpty()) {
+            return "No alumni data available.\n";
+        }
+        StringBuilder details = new StringBuilder("Alumni List:\n\n");
+        for (Alumni alumni : alumniList) {
+            details.append(alumni.getDetails()).append("\n");
+        }
+        return details.toString();
+    }
+
+    // Method to search alumni by name
+    public String searchAlumniByName(String name) {
+        StringBuilder result = new StringBuilder();
+        for (Alumni alumni : alumniList) {
+            if (alumni.getName().equalsIgnoreCase(name)) {
+                result.append(alumni.getDetails());
+            }
+        }
+        return result.length() > 0 ? result.toString() : "No alumni found with the name: " + name + "\n";
+    }
+
+    // Main method to launch GUI
+    public static void main(String[] args) {
+        AlumniManagementSystemGUI system = new AlumniManagementSystemGUI();
+
+        // Create frame
+        JFrame frame = new JFrame("Alumni Management System");
+        frame.setSize(600, 400);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        // Layout and panels
+        frame.setLayout(new BorderLayout());
+
+        // Title
+        JLabel titleLabel = new JLabel("Alumni Management System", JLabel.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        frame.add(titleLabel, BorderLayout.NORTH);
+
+        // Main text area
+        JTextArea displayArea = new JTextArea();
+        displayArea.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(displayArea);
+        frame.add(scrollPane, BorderLayout.CENTER);
+
+        // Button panel
+        JPanel buttonPanel = new JPanel();
+        frame.add(buttonPanel, BorderLayout.SOUTH);
+
+        // Add alumni button
+        JButton addAlumniButton = new JButton("Add Alumni");
+        buttonPanel.add(addAlumniButton);
+        addAlumniButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JTextField nameField = new JTextField(10);
+                JTextField yearField = new JTextField(4);
+                JTextField courseField = new JTextField(10);
+                JTextField emailField = new JTextField(15);
+
+                JPanel panel = new JPanel();
+                panel.setLayout(new GridLayout(4, 2));
+                panel.add(new JLabel("Name:"));
+                panel.add(nameField);
+                panel.add(new JLabel("Year of Graduation:"));
+                panel.add(yearField);
+                panel.add(new JLabel("Course:"));
+                panel.add(courseField);
+                panel.add(new JLabel("Email:"));
+                panel.add(emailField);
+
+                int result = JOptionPane.showConfirmDialog(frame, panel, "Add Alumni", JOptionPane.OK_CANCEL_OPTION);
+                if (result == JOptionPane.OK_OPTION) {
+                    String name = nameField.getText().trim();
+                    String year = yearField.getText().trim();
+                    String course = courseField.getText().trim();
+                    String email = emailField.getText().trim();
+
+                    if (!year.matches("\\d{4}")) {
+                        JOptionPane.showMessageDialog(frame, "Invalid year of graduation. Please enter a 4-digit year.", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    if (!email.matches("^[\\w.-]+@[\\w.-]+\\.\\w+$")) {
+                        JOptionPane.showMessageDialog(frame, "Invalid email format.", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+
+                    system.addAlumni(name, year, course, email);
+                    JOptionPane.showMessageDialog(frame, "Alumni added successfully!");
+                }
+            }
+        });
+
+        // Display alumni button
+        JButton displayButton = new JButton("Display Alumni");
+        buttonPanel.add(displayButton);
+        displayButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                displayArea.setText(system.displayAlumni());
+            }
+        });
+
+        // Search alumni button
+        JButton searchButton = new JButton("Search Alumni");
+        buttonPanel.add(searchButton);
+        searchButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String name = JOptionPane.showInputDialog(frame, "Enter name to search:");
+                if (name != null && !name.trim().isEmpty()) {
+                    displayArea.setText(system.searchAlumniByName(name.trim()));
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Please enter a valid name.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        // Exit button
+        JButton exitButton = new JButton("Exit");
+        buttonPanel.add(exitButton);
+        exitButton.addActionListener(e -> System.exit(0));
+
+        // Show frame
+        frame.setVisible(true);
+    }
+}
